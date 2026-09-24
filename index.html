@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Wichtig für das iPhone: richtige Breite, kein Verzerren, Inhalt bis in die Ecken (Notch/Dynamic Island) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <title>Mischa App</title>
+  <meta name="description" content="Meine persönliche App">
+
+  <!-- Als App auf dem Home-Bildschirm (ohne Safari-Leisten) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mischa App">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Farbe der Statusleiste / Browserleiste -->
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- Kopfzeile: Der Titel wird automatisch aus data-title der aktiven Seite übernommen -->
+    <header class="app-header">
+      <h1 id="page-title">Start</h1>
+    </header>
+
+    <!-- Inhaltsbereich: Jede <section class="page"> ist eine Seite der App -->
+    <main class="app-content" id="content">
+
+      <!-- ===================== SEITE 1: START ===================== -->
+      <section class="page" id="start" data-title="Start">
+        <div class="card">
+          <h2>Willkommen 👋</h2>
+          <p>Das ist die Startseite deiner App. Ersetze diesen Text in der Datei <code>index.html</code> durch deine eigenen Inhalte.</p>
+        </div>
+
+        <div class="card">
+          <h2>Beispiel-Button</h2>
+          <p>Buttons können über <code>js/app.js</code> mit Funktionen belegt werden.</p>
+          <button class="button" id="demo-button" type="button">Tipp mich</button>
+          <p class="muted" id="demo-output"></p>
+        </div>
+      </section>
+
+      <!-- ===================== SEITE 2: INHALTE ===================== -->
+      <section class="page" id="inhalte" data-title="Inhalte" hidden>
+        <h2 class="section-title">Liste</h2>
+        <ul class="list">
+          <li>Erster Eintrag</li>
+          <li>Zweiter Eintrag</li>
+          <li>Dritter Eintrag</li>
+        </ul>
+
+        <h2 class="section-title">Eingabe</h2>
+        <div class="card">
+          <label class="label" for="demo-input">Notiz (wird auf dem Gerät gespeichert)</label>
+          <input class="input" id="demo-input" type="text" placeholder="Schreib etwas …" autocomplete="off">
+        </div>
+      </section>
+
+      <!-- ===================== SEITE 3: INFO ===================== -->
+      <section class="page" id="info" data-title="Info" hidden>
+        <div class="card">
+          <h2>Über diese App</h2>
+          <p>Hier kannst du Informationen zu deiner App eintragen.</p>
+          <p class="muted">Version 1.0</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Tab-Leiste unten: href="#id" muss zur id einer Seite oben passen -->
+    <nav class="tabbar" aria-label="Navigation">
+      <a class="tab" href="#start">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        <span>Start</span>
+      </a>
+      <a class="tab" href="#inhalte">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+        <span>Inhalte</span>
+      </a>
+      <a class="tab" href="#info">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
+        <span>Info</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
