@@ -4,7 +4,7 @@
 :root {
   --bg: rgb(248 221 129 / 0.38);            /* Seitenhintergrund */
   --text: #000000;          /* Textfarbe */
-  --text-leise: #696969;    /* Hinweise, leere Zustände */
+  --text-leise: #726011;    /* Hinweise, leere Zustände */
   --titel-bg: #726011;      /* Titelbalken */
   --karte-bg: #f8dd81;      /* Karte "Nächster Termin", Fenster */
   --box-bg: #fff2cf;        /* Boxen "In Zukunft" / "Rückblickend" */
