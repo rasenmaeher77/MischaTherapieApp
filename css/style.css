@@ -1,22 +1,18 @@
-/* =========================================================
-   Mischa App – Stylesheet
-   Optimiert für iPhone (Safari & Home-Bildschirm-App)
-   ========================================================= */
+/* Mischa Therapie App – optimiert für iPhone (Safari & Home-Bildschirm-App)
+   Farben und Optik lassen sich über die Variablen in :root anpassen. */
 
-/* ---------- Farben & Maße (hier zentral anpassen) ---------- */
 :root {
-  --bg: #f2f2f7;             /* Hintergrund der App */
-  --surface: #ffffff;        /* Karten, Listen */
-  --text: #1c1c1e;           /* Haupttext */
-  --muted: #6e6e73;          /* Nebentext */
-  --border: rgba(60, 60, 67, 0.18);
-  --accent: #007aff;         /* Akzentfarbe (Buttons, aktiver Tab) */
-  --accent-text: #ffffff;
-  --bar-bg: rgba(249, 249, 249, 0.85);
-
-  --radius: 14px;
-  --gap: 16px;
-  --tabbar-height: 50px;
+  --bg: #ffffff;            /* Seitenhintergrund */
+  --text: #1c1c1e;          /* Textfarbe */
+  --text-leise: #6e6e73;    /* Hinweise, leere Zustände */
+  --titel-bg: #d0d0d0;      /* Titelbalken */
+  --karte-bg: #f5f5f5;      /* Karte "Nächster Termin", Fenster */
+  --box-bg: #dcdcdc;        /* Boxen "In Zukunft" / "Rückblickend" */
+  --button-bg: #e6e6e6;     /* Buttons */
+  --button-aktiv: #cfcfcf;  /* Buttons beim Antippen */
+  --feld-bg: #ffffff;       /* Eingabefelder */
+  --schliessen-bg: #e5452f; /* ✕-Button */
+  --gefahr: #c62828;        /* Löschen, Fehler */
 
   /* Abstände für Notch, Dynamic Island und Home-Indikator */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -24,283 +20,341 @@
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
-/* Dunkler Modus – folgt automatisch der iPhone-Einstellung */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --surface: #1c1c1e;
-    --text: #f5f5f7;
-    --muted: #98989f;
-    --border: rgba(84, 84, 88, 0.6);
-    --accent: #0a84ff;
-    --bar-bg: rgba(22, 22, 24, 0.85);
-  }
-}
+*, *::before, *::after { box-sizing: border-box; }
 
-/* ---------- Grundlagen ---------- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+[hidden] { display: none !important; }
 
 html {
-  height: 100%;
-  -webkit-text-size-adjust: 100%;   /* verhindert automatisches Vergrößern von Text beim Drehen */
+  -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  height: 100%;
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   font-size: 17px;
-  line-height: 1.45;
+  line-height: 1.4;
   -webkit-font-smoothing: antialiased;
-  -webkit-tap-highlight-color: transparent;   /* kein grauer Kasten beim Antippen */
-  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-img,
-svg,
-video {
-  display: block;
-  max-width: 100%;
-  height: auto;
+/* Kein Scrollen der Seite, solange ein Fenster offen ist */
+body.fenster-offen { overflow: hidden; }
+
+/* Verhindert Zoomen beim Antippen von Eingabefeldern (iOS zoomt bei < 16px) */
+input, textarea, button {
+  font: inherit;
+  font-size: 16px;
+  color: inherit;
 }
 
-/* ---------- App-Gerüst: Kopfzeile / Inhalt / Tab-Leiste ---------- */
+h1, h2, h3, p { margin: 0; }
+
+svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* ===== Grundlayout ===== */
+
 .app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(var(--safe-top) + 20px) calc(var(--safe-right) + 16px)
+           calc(var(--safe-bottom) + 20px) calc(var(--safe-left) + 16px);
   display: flex;
   flex-direction: column;
-  height: 100vh;     /* Fallback für ältere iOS-Versionen */
-  height: 100dvh;    /* passt sich an ein- und ausblendende Safari-Leisten an */
-  overflow: hidden;
+  gap: 16px;
 }
 
-.app-header {
-  flex-shrink: 0;
-  padding: calc(var(--safe-top) + 12px) calc(var(--safe-right) + 20px) 10px calc(var(--safe-left) + 20px);
-  background: var(--bg);
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 34px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.titel {
+  background: var(--titel-bg);
+  padding: 14px 12px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
   line-height: 1.15;
 }
 
-.app-content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  padding: 4px calc(var(--safe-right) + var(--gap)) calc(var(--gap) * 2) calc(var(--safe-left) + var(--gap));
-  touch-action: manipulation;   /* kein Zoom durch Doppeltippen */
-}
-
-.page {
-  width: 100%;
-  max-width: 680px;
-  margin: 0 auto;
-  animation: page-in 0.2s ease-out;
-}
-
-.page[hidden] {
-  display: none;
-}
-
-@keyframes page-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
-
-/* ---------- Tab-Leiste ---------- */
-.tabbar {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-around;
-  padding: 0 var(--safe-right) var(--safe-bottom) var(--safe-left);
-  background: var(--bar-bg);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  backdrop-filter: saturate(180%) blur(20px);
-  border-top: 0.5px solid var(--border);
-}
-
-.tab {
-  flex: 1;
-  height: var(--tabbar-height);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: 500;
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-.tab svg {
-  width: 26px;
-  height: 26px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.tab.active {
-  color: var(--accent);
-}
-
-/* ---------- Bausteine für deine Inhalte ---------- */
-h2 {
-  margin: 0 0 8px;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-p {
-  margin: 0 0 12px;
-}
-
-p:last-child {
-  margin-bottom: 0;
-}
-
-a {
-  color: var(--accent);
-}
-
-code {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.88em;
-  padding: 1px 5px;
-  border-radius: 5px;
-  background: var(--border);
-}
-
-.muted {
-  color: var(--muted);
+.hinweis {
+  color: var(--text-leise);
+  text-align: center;
   font-size: 15px;
 }
 
-/* Karte */
-.card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: var(--gap);
-  margin-bottom: var(--gap);
-  overflow-wrap: anywhere;
+.leer { color: var(--text-leise); }
+
+.fehler {
+  color: var(--gefahr);
+  font-size: 15px;
 }
 
-/* Abschnittsüberschrift (klein, grau, wie in den iPhone-Einstellungen) */
-.section-title {
-  margin: 20px 4px 8px;
-  font-size: 13px;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--muted);
-}
+/* ===== Buttons ===== */
 
-.section-title:first-child {
-  margin-top: 4px;
-}
-
-/* Liste */
-.list {
-  list-style: none;
-  margin: 0 0 var(--gap);
-  padding: 0;
-  background: var(--surface);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.list li {
-  position: relative;
-  padding: 12px var(--gap);
-  min-height: 44px;
-}
-
-.list li + li::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: var(--gap);
-  right: 0;
-  border-top: 0.5px solid var(--border);
-}
-
-/* Button */
 .button {
   display: block;
   width: 100%;
-  min-height: 48px;   /* gut treffbar mit dem Finger */
-  margin: 12px 0 8px;
-  padding: 12px 20px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--accent);
-  color: var(--accent-text);
-  font: inherit;
-  font-weight: 600;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 0;
+  background: var(--button-bg);
+  text-align: center;
   cursor: pointer;
-  touch-action: manipulation;
   -webkit-appearance: none;
   appearance: none;
-  transition: opacity 0.15s, transform 0.15s;
 }
 
-.button:active {
-  opacity: 0.7;
-  transform: scale(0.98);
+.button:active { background: var(--button-aktiv); }
+
+.button:disabled { opacity: 0.5; }
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
-/* Eingabefeld – mind. 16px Schrift, sonst zoomt iOS beim Antippen hinein */
-.label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 15px;
-  color: var(--muted);
+.icon-button:active { background: var(--button-aktiv); }
+
+.link-button {
+  align-self: center;
+  margin-top: auto;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-leise);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
-.input {
-  display: block;
+/* ===== Anmeldung ===== */
+
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.login .button { margin-top: 12px; }
+
+label {
+  font-weight: 600;
+}
+
+input, textarea {
   width: 100%;
-  min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg);
-  color: var(--text);
-  font: inherit;
-  font-size: 17px;
+  border: none;
+  border-radius: 0;
+  background: var(--feld-bg);
   -webkit-appearance: none;
   appearance: none;
 }
 
-.input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
+.login input { background: var(--karte-bg); }
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
 }
 
-/* Weniger Bewegung, wenn in den iPhone-Bedienungshilfen eingestellt */
-@media (prefers-reduced-motion: reduce) {
-  .page { animation: none; }
-  .button { transition: none; }
+/* ===== Startseite ===== */
+
+.start {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
 }
+
+.karte {
+  background: var(--karte-bg);
+  padding: 14px 16px 16px;
+}
+
+.karte-kopf {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.karte-kopf h2 {
+  font-size: 19px;
+  font-weight: 600;
+  padding-top: 9px;
+  overflow-wrap: anywhere;
+}
+
+.karte-kopf .icon-button { margin: 0 -10px 0 0; }
+
+.aufklapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pfeil { transition: transform 0.2s ease; }
+
+.aufklapper[aria-expanded="true"] .pfeil { transform: rotate(90deg); }
+
+.aufklapp-text {
+  background: var(--box-bg);
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 300px;
+  margin: 24px auto 0;
+}
+
+/* ===== Fenster (Overlay) ===== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.35);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(var(--safe-top) + 24px) calc(var(--safe-right) + 16px)
+           calc(var(--safe-bottom) + 24px) calc(var(--safe-left) + 16px);
+}
+
+/* Das Terminfenster liegt über der Liste */
+#termin-fenster { z-index: 20; }
+
+.fenster {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--karte-bg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fenster h2 {
+  font-size: 20px;
+  font-weight: 600;
+  padding-right: 48px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  overflow-wrap: anywhere;
+}
+
+.schliessen {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0;
+  background: var(--schliessen-bg);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+#termin-ansicht, #termin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#termin-form > label { margin-bottom: -8px; }
+
+.box {
+  background: var(--box-bg);
+  padding: 10px 12px 12px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.box h3, .box label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.box p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ===== Liste ===== */
+
+.liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.liste li {
+  display: flex;
+  align-items: stretch;
+  background: var(--button-bg);
+}
+
+.liste .eintrag {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.liste .eintrag:active { background: var(--button-aktiv); }
+
+.liste .icon-button { height: auto; min-height: 44px; }
+
+.liste .loeschen { color: var(--gefahr); }

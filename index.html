@@ -3,101 +3,136 @@
 <head>
   <meta charset="UTF-8">
 
-  <!-- Wichtig für das iPhone: richtige Breite, kein Verzerren, Inhalt bis in die Ecken (Notch/Dynamic Island) -->
+  <!-- iPhone: richtige Breite, Inhalt bis in die Ecken (Notch/Dynamic Island) -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <title>Mischa App</title>
-  <meta name="description" content="Meine persönliche App">
+  <title>Mischa Therapie App</title>
 
   <!-- Als App auf dem Home-Bildschirm (ohne Safari-Leisten) -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Mischa App">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MischaTherapie">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#ffffff">
 
-  <!-- Farbe der Statusleiste / Browserleiste -->
-  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-
-  <!-- Icons -->
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
-
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="app">
+  <main class="app">
+    <h1 class="titel">Mischa Therapie App</h1>
 
-    <!-- Kopfzeile: Der Titel wird automatisch aus data-title der aktiven Seite übernommen -->
-    <header class="app-header">
-      <h1 id="page-title">Start</h1>
-    </header>
+    <p id="offline-hinweis" class="hinweis" hidden>
+      Offline – Änderungen werden synchronisiert, sobald du wieder online bist.
+    </p>
 
-    <!-- Inhaltsbereich: Jede <section class="page"> ist eine Seite der App -->
-    <main class="app-content" id="content">
+    <!-- Wird angezeigt, bis Firebase weiß, ob jemand angemeldet ist -->
+    <p id="laden" class="hinweis">Lädt …</p>
 
-      <!-- ===================== SEITE 1: START ===================== -->
-      <section class="page" id="start" data-title="Start">
-        <div class="card">
-          <h2>Willkommen 👋</h2>
-          <p>Das ist die Startseite deiner App. Ersetze diesen Text in der Datei <code>index.html</code> durch deine eigenen Inhalte.</p>
+    <!-- ===== Anmeldung ===== -->
+    <form id="login" class="login" hidden>
+      <label for="login-email">E-Mail</label>
+      <input id="login-email" type="email" autocomplete="username" required>
+
+      <label for="login-passwort">Passwort</label>
+      <input id="login-passwort" type="password" autocomplete="current-password" required>
+
+      <button type="submit" class="button">Anmelden</button>
+      <p id="login-fehler" class="fehler" hidden></p>
+    </form>
+
+    <!-- ===== Startseite ===== -->
+    <section id="start" class="start" hidden>
+      <div class="karte">
+        <div class="karte-kopf">
+          <h2 id="naechster-titel">Nächster Termin</h2>
+          <button id="naechster-bearbeiten" class="icon-button" type="button" aria-label="Termin bearbeiten" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg>
+          </button>
         </div>
 
-        <div class="card">
-          <h2>Beispiel-Button</h2>
-          <p>Buttons können über <code>js/app.js</code> mit Funktionen belegt werden.</p>
-          <button class="button" id="demo-button" type="button">Tipp mich</button>
-          <p class="muted" id="demo-output"></p>
+        <p id="naechster-leer" class="leer">Noch kein Termin vorhanden.</p>
+
+        <div id="naechster-inhalt" hidden>
+          <button class="aufklapper" type="button" aria-expanded="false" aria-controls="naechster-zukunft">
+            In Zukunft
+            <svg class="pfeil" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          </button>
+          <p id="naechster-zukunft" class="aufklapp-text" hidden></p>
+
+          <button class="aufklapper" type="button" aria-expanded="false" aria-controls="naechster-rueckblick">
+            Rückblickend
+            <svg class="pfeil" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          </button>
+          <p id="naechster-rueckblick" class="aufklapp-text" hidden></p>
         </div>
-      </section>
+      </div>
 
-      <!-- ===================== SEITE 2: INHALTE ===================== -->
-      <section class="page" id="inhalte" data-title="Inhalte" hidden>
-        <h2 class="section-title">Liste</h2>
-        <ul class="list">
-          <li>Erster Eintrag</li>
-          <li>Zweiter Eintrag</li>
-          <li>Dritter Eintrag</li>
-        </ul>
+      <div class="buttons">
+        <button id="btn-loeschen" class="button" type="button">Termin löschen</button>
+        <button id="btn-hinzufuegen" class="button" type="button">Termin hinzufügen</button>
+        <button id="btn-liste" class="button" type="button">Vergangene Termine</button>
+      </div>
 
-        <h2 class="section-title">Eingabe</h2>
-        <div class="card">
-          <label class="label" for="demo-input">Notiz (wird auf dem Gerät gespeichert)</label>
-          <input class="input" id="demo-input" type="text" placeholder="Schreib etwas …" autocomplete="off">
-        </div>
-      </section>
+      <button id="btn-abmelden" class="link-button" type="button">Abmelden</button>
+    </section>
+  </main>
 
-      <!-- ===================== SEITE 3: INFO ===================== -->
-      <section class="page" id="info" data-title="Info" hidden>
-        <div class="card">
-          <h2>Über diese App</h2>
-          <p>Hier kannst du Informationen zu deiner App eintragen.</p>
-          <p class="muted">Version 1.0</p>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Tab-Leiste unten: href="#id" muss zur id einer Seite oben passen -->
-    <nav class="tabbar" aria-label="Navigation">
-      <a class="tab" href="#start">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
-        <span>Start</span>
-      </a>
-      <a class="tab" href="#inhalte">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
-        <span>Inhalte</span>
-      </a>
-      <a class="tab" href="#info">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
-        <span>Info</span>
-      </a>
-    </nav>
-
+  <!-- ===== Fenster: Liste (Vergangene Termine / Termin löschen) ===== -->
+  <div id="liste-fenster" class="overlay" hidden>
+    <div class="fenster" role="dialog" aria-modal="true" aria-labelledby="liste-titel">
+      <button class="schliessen" type="button" aria-label="Schließen" data-schliessen="liste">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h2 id="liste-titel">Vergangene Termine</h2>
+      <ul id="liste" class="liste"></ul>
+      <p id="liste-leer" class="leer" hidden>Noch keine Termine vorhanden.</p>
+    </div>
   </div>
 
-  <script src="js/app.js"></script>
+  <!-- ===== Fenster: Termin (ansehen / hinzufügen / bearbeiten) ===== -->
+  <div id="termin-fenster" class="overlay" hidden>
+    <div class="fenster" role="dialog" aria-modal="true" aria-labelledby="termin-titel">
+      <button class="schliessen" type="button" aria-label="Schließen" data-schliessen="termin">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h2 id="termin-titel">Termin</h2>
+
+      <!-- Ansehen -->
+      <div id="termin-ansicht">
+        <div class="box">
+          <h3>In Zukunft:</h3>
+          <p id="ansicht-zukunft"></p>
+        </div>
+        <div class="box">
+          <h3>Rückblickend:</h3>
+          <p id="ansicht-rueckblick"></p>
+        </div>
+        <button id="ansicht-bearbeiten" class="button" type="button">Bearbeiten</button>
+      </div>
+
+      <!-- Hinzufügen / Bearbeiten -->
+      <form id="termin-form" hidden>
+        <label for="feld-name">Terminname</label>
+        <input id="feld-name" type="text" maxlength="200" required placeholder="z. B. 12. Oktober">
+
+        <div class="box">
+          <label for="feld-zukunft">In Zukunft:</label>
+          <textarea id="feld-zukunft" rows="6" maxlength="20000"></textarea>
+        </div>
+        <div class="box">
+          <label for="feld-rueckblick">Rückblickend:</label>
+          <textarea id="feld-rueckblick" rows="6" maxlength="20000"></textarea>
+        </div>
+
+        <button type="submit" class="button">Speichern</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

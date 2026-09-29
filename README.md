@@ -1,95 +1,74 @@
-# Mischa App
+# Mischa Therapie App
 
-Eine schlanke Web-App (HTML, CSS, JavaScript) ohne Frameworks – optimiert für das iPhone.
-Sie lässt sich über GitHub Pages veröffentlichen und wie eine richtige App zum Home-Bildschirm hinzufügen.
+Private, für das iPhone optimierte Web-App (HTML, CSS, JavaScript, keine Frameworks).
+Die Termine liegen in **Firebase Firestore**. Lesen und ändern darf nur, wer mit **deinem**
+Konto angemeldet ist (Firebase Authentication, E-Mail/Passwort).
 
-## Dateien
+| Datei / Ordner          | Zweck                                                         |
+|-------------------------|---------------------------------------------------------------|
+| `index.html`            | Aufbau: Anmeldung, Startseite, Liste, Terminfenster           |
+| `css/style.css`         | Aussehen – Farben ganz oben in `:root` anpassen               |
+| `js/app.js`             | Logik: Anmeldung, Termine laden/speichern/löschen             |
+| `js/firebase-config.js` | Zugangsdaten deines Firebase-Projekts (dürfen öffentlich sein) |
+| `firestore.rules`       | Sicherheitsregeln – werden in der Firebase-Konsole eingefügt  |
+| `manifest.webmanifest`  | Name, Icon und Farben auf dem Home-Bildschirm                 |
+| `sw.js`                 | Service Worker (Offline-Funktion)                             |
+| `icons/`                | App-Icons (180, 192, 512 px)                                  |
 
-| Datei / Ordner          | Zweck                                                               |
-|-------------------------|---------------------------------------------------------------------|
-| `index.html`            | Aufbau und **Inhalte** der App (hier arbeitest du am meisten)       |
-| `css/style.css`         | Aussehen: Farben, Abstände, Schriften                               |
-| `js/app.js`             | Funktionen: Seitenwechsel, Buttons, Speichern                       |
-| `manifest.webmanifest`  | Name, Icon und Farben der App auf dem Home-Bildschirm               |
-| `sw.js`                 | Offline-Funktion (App läuft auch ohne Internet)                     |
-| `icons/`                | App-Icons (180 × 180, 192 × 192, 512 × 512 Pixel, PNG)              |
-| `.nojekyll`             | Sorgt dafür, dass GitHub Pages alle Dateien unverändert ausliefert  |
+## Einrichtung (einmalig)
 
-## 1. Auf GitHub hochladen
+### 1. Firebase-Projekt anlegen
+1. <https://console.firebase.google.com> öffnen → **Projekt hinzufügen**.
+   Name z. B. `mischa-therapie`. Google Analytics wird nicht gebraucht.
+2. In der Projektübersicht auf das Web-Symbol **`</>`** klicken, einen Namen eingeben
+   (Firebase Hosting **nicht** anhaken) → **App registrieren**.
+3. Die angezeigten Werte (`apiKey`, `authDomain`, …) in `js/firebase-config.js` übertragen.
 
-1. Auf [github.com](https://github.com) anmelden → oben rechts **+** → **New repository**.
-2. Namen vergeben (z. B. `mischa-app`), **Public** wählen → **Create repository**.
-3. Auf **uploading an existing file** klicken und **alle Dateien und Ordner** aus diesem Ordner hineinziehen
-   (auch `.nojekyll` – im Finder versteckte Dateien mit `Cmd + Shift + .` einblenden).
-4. **Commit changes** klicken.
+### 2. Anmeldung einrichten
+1. Links **Build → Authentication → Jetzt starten**.
+2. Reiter **Anmeldemethode** → **E-Mail-Adresse/Passwort** → nur den ersten Schalter aktivieren → Speichern.
+3. Reiter **Nutzer** → **Nutzer hinzufügen** → deine E-Mail und ein sicheres Passwort.
+4. Die **Nutzer-UID** der neuen Zeile kopieren – die brauchst du gleich.
 
-## 2. Als Website veröffentlichen (GitHub Pages)
+### 3. Datenbank einrichten
+1. Links **Build → Firestore Database → Datenbank erstellen**.
+2. Standort in Europa wählen (z. B. `europe-west3` Frankfurt) – lässt sich später nicht ändern.
+3. **Im Produktionsmodus starten** (nicht Testmodus).
+4. Reiter **Regeln**: Den gesamten Inhalt durch `firestore.rules` ersetzen,
+   `HIER_DEINE_UID_EINTRAGEN` durch deine UID ersetzen → **Veröffentlichen**.
 
-1. Im Repository: **Settings** → **Pages**.
-2. Bei *Source*: **Deploy from a branch**, Branch **main**, Ordner **/ (root)** → **Save**.
-3. Nach 1–2 Minuten ist die App erreichbar unter:
-   `https://DEIN-BENUTZERNAME.github.io/mischa-app/`
+### 4. Online stellen (GitHub Pages)
+1. Alle Dateien auf GitHub hochladen (Branch `main`).
+2. Im Repository **Settings → Pages** → Source „Deploy from a branch“, Branch `main`, Ordner `/ (root)`.
+3. Nach 1–2 Minuten ist die App unter `https://rasenmaeher77.github.io/MischaApp/` erreichbar.
+4. Empfohlen: In Firebase unter **Authentication → Einstellungen → Autorisierte Domains**
+   `rasenmaeher77.github.io` hinzufügen.
 
-## 3. Auf dem iPhone installieren
+### 5. Auf dem iPhone installieren
+Seite in **Safari** öffnen → Teilen-Symbol → **Zum Home-Bildschirm**.
+Die App auf dem Home-Bildschirm hat einen eigenen Speicher, du musst dich dort also einmal
+separat anmelden. Danach bleibst du angemeldet.
 
-1. Die Adresse in **Safari** öffnen.
-2. Unten auf das **Teilen-Symbol** (Quadrat mit Pfeil) tippen.
-3. **Zum Home-Bildschirm** wählen → **Hinzufügen**.
+## Sicherheit – warum ist das geschützt?
 
-Die App startet jetzt im Vollbild ohne Safari-Leisten und funktioniert nach dem ersten Öffnen auch offline.
+- Die Werte in `firebase-config.js` sind **kein Passwort**; sie sagen nur, welches Projekt gemeint ist.
+- Geschützt wird alles durch die **Firestore-Regeln** auf dem Google-Server: Nur die eingetragene
+  UID darf lesen oder schreiben. Selbst wenn sich jemand über die öffentliche Konfiguration ein
+  eigenes Konto anlegen würde, hätte er eine andere UID und bekommt keine Daten.
+- Die Regeln prüfen zusätzlich, dass nur die erwarteten Felder in sinnvoller Länge gespeichert werden.
 
-## Inhalte bearbeiten
+## Offline
 
-**Text ändern:** In `index.html` den Text zwischen den Tags ersetzen, z. B. in `<div class="card"> … </div>`.
+Termine werden auf dem Gerät zwischengespeichert. Ohne Internet kannst du sie lesen, anlegen,
+bearbeiten und löschen – die Änderungen werden hochgeladen, sobald wieder Internet da ist.
+Die allererste Anmeldung braucht Internet.
 
-**Neue Seite hinzufügen:**
+## Lokal testen
 
-1. In `index.html` innerhalb von `<main>` eine neue Seite anlegen:
-   ```html
-   <section class="page" id="rezepte" data-title="Rezepte" hidden>
-     <div class="card">
-       <h2>Meine Rezepte</h2>
-       <p>…</p>
-     </div>
-   </section>
-   ```
-2. In der `<nav class="tabbar">` einen passenden Tab ergänzen (`href` = `#` + `id` der Seite):
-   ```html
-   <a class="tab" href="#rezepte">
-     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
-     <span>Rezepte</span>
-   </a>
-   ```
-   Tipp: Mehr als 5 Tabs passen auf dem iPhone nicht gut nebeneinander.
-
-**Fertige Bausteine** (Klassen in `style.css`): `card` (Karte), `list` (Liste), `section-title` (kleine Überschrift),
-`button` (Button), `input` + `label` (Eingabefeld), `muted` (grauer Nebentext).
-
-**Farben ändern:** Oben in `css/style.css` unter `:root` (heller Modus) und `@media (prefers-color-scheme: dark)` (dunkler Modus).
-
-**App-Name ändern:** In `index.html` (`<title>` und `apple-mobile-web-app-title`) und in `manifest.webmanifest`.
-
-**Eigenes Icon:** Die drei PNG-Dateien in `icons/` durch eigene quadratische Bilder mit denselben Namen und Größen ersetzen
-(ohne abgerundete Ecken und ohne Transparenz – das iPhone rundet selbst ab).
-
-**Bilder einbinden:** Einen Ordner `images/` anlegen, Bild hineinlegen und mit `<img src="images/foto.jpg" alt="Beschreibung">` einfügen.
-Damit das Bild auch offline verfügbar ist, den Pfad zusätzlich in `sw.js` in die Liste `FILES` eintragen.
+Im Projektordner `python3 -m http.server 8000` ausführen und <http://localhost:8000> öffnen
+(`localhost` ist in Firebase standardmäßig erlaubt).
 
 ## Änderungen veröffentlichen
 
-Geänderte Dateien auf GitHub erneut hochladen (**Add file → Upload files**). Nach 1–2 Minuten ist die neue Version online.
-Die App auf dem iPhone lädt bei bestehender Internetverbindung automatisch die neueste Version – ggf. die App einmal
-komplett schließen (nach oben wischen) und neu öffnen.
-
-Wenn du `icons/` oder `manifest.webmanifest` änderst, die App vom Home-Bildschirm löschen und neu hinzufügen,
-damit das iPhone Name und Icon neu übernimmt.
-
-## Lokal am Mac testen
-
-Im Terminal in diesem Ordner:
-
-```bash
-python3 -m http.server 8000
-```
-
-Dann im Browser `http://localhost:8000` öffnen. Für die iPhone-Ansicht in Safari: **Entwickeln → Responsive Design Mode**.
+Dateien ändern und auf GitHub hochladen. Bei neuen Dateien diese in `sw.js` unter `FILES`
+eintragen und `CACHE` hochzählen (z. B. `mischa-therapie-v2`).

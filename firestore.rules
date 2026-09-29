@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Nur EIN Benutzer (deine UID) darf Termine lesen, anlegen, ändern und löschen.
+// Alle anderen – auch wer den Link kennt oder sich selbst ein Konto anlegt – bekommen nichts.
+// Diese Regeln in der Firebase-Konsole unter Firestore → Regeln einfügen und veröffentlichen.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function istBesitzer() {
+      return request.auth != null && request.auth.uid == "HIER_DEINE_UID_EINTRAGEN";
+    }
+
+    function textFeld(daten, feld, maxLaenge) {
+      return daten[feld] is string && daten[feld].size() <= maxLaenge;
+    }
+
+    function gueltig(daten) {
+      return daten.keys().hasOnly(["name", "zukunft", "rueckblick", "erstelltAm"])
+        && textFeld(daten, "name", 200) && daten.name.size() > 0
+        && textFeld(daten, "zukunft", 20000)
+        && textFeld(daten, "rueckblick", 20000)
+        && daten.erstelltAm is timestamp;
+    }
+
+    match /termine/{terminId} {
+      allow read, delete: if istBesitzer();
+
+      allow create: if istBesitzer()
+        && gueltig(request.resource.data)
+        && request.resource.data.erstelltAm == request.time;
+
+      allow update: if istBesitzer()
+        && gueltig(request.resource.data)
+        && request.resource.data.erstelltAm == resource.data.erstelltAm;
+    }
+
+    // Alles andere ist gesperrt
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
