@@ -31,6 +31,23 @@
 
     <!-- Wird angezeigt, bis Firebase weiß, ob jemand angemeldet ist -->
     <p id="laden" class="hinweis">Lädt …</p>
+    <script>
+      // Hinweis statt endlosem "Lädt …", falls die App nicht starten kann
+      (function () {
+        var laden = document.getElementById("laden");
+        if (location.protocol === "file:") {
+          laden.textContent = "Die App kann nicht per Doppelklick auf die Datei geöffnet werden. " +
+            "Bitte den Link (https://…) im Browser öffnen oder einen lokalen Server nutzen (siehe README).";
+          return;
+        }
+        setTimeout(function () {
+          if (!laden.hidden && laden.textContent === "Lädt …") {
+            laden.textContent = "Die App lädt nicht. Bitte die Seite neu laden. Falls das nicht hilft: " +
+              "Inhaltsblocker/Werbeblocker für diese Seite deaktivieren oder Internetverbindung prüfen.";
+          }
+        }, 10000);
+      })();
+    </script>
 
     <!-- ===== Anmeldung ===== -->
     <form id="login" class="login" hidden>

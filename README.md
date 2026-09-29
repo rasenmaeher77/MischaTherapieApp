@@ -40,7 +40,7 @@ Konto angemeldet ist (Firebase Authentication, E-Mail/Passwort).
 ### 4. Online stellen (GitHub Pages)
 1. Alle Dateien auf GitHub hochladen (Branch `main`).
 2. Im Repository **Settings → Pages** → Source „Deploy from a branch“, Branch `main`, Ordner `/ (root)`.
-3. Nach 1–2 Minuten ist die App unter `https://rasenmaeher77.github.io/MischaApp/` erreichbar.
+3. Nach 1–2 Minuten ist die App unter `https://rasenmaeher77.github.io/MischaTherapieApp/` erreichbar.
 4. Empfohlen: In Firebase unter **Authentication → Einstellungen → Autorisierte Domains**
    `rasenmaeher77.github.io` hinzufügen.
 
