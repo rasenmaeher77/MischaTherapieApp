@@ -161,7 +161,7 @@ function naechstenAnzeigen() {
   const termin = termine[0] || null;
 
   $("naechster-titel").textContent = termin
-    ? "Nächster Termin: „" + termin.name + "“"
+    ? "Nächster Termin: " + termin.name
     : "Nächster Termin";
   $("naechster-leer").hidden = !!termin;
   $("naechster-inhalt").hidden = !termin;
@@ -251,7 +251,7 @@ function terminOeffnen(id, modus) {
 function ansichtAnzeigen() {
   const termin = findeTermin(offenerId);
   if (!termin) return;
-  $("termin-titel").textContent = "Termin: „" + termin.name + "“";
+  $("termin-titel").textContent = "Termin: " + termin.name;
   $("ansicht-zukunft").textContent = termin.zukunft || "–";
   $("ansicht-rueckblick").textContent = termin.rueckblick || "–";
 }
