@@ -2,14 +2,14 @@
    Farben und Optik lassen sich über die Variablen in :root anpassen. */
 
 :root {
-  --bg: #ffffff;            /* Seitenhintergrund */
-  --text: #1c1c1e;          /* Textfarbe */
-  --text-leise: #6e6e73;    /* Hinweise, leere Zustände */
-  --titel-bg: #d0d0d0;      /* Titelbalken */
-  --karte-bg: #f5f5f5;      /* Karte "Nächster Termin", Fenster */
-  --box-bg: #dcdcdc;        /* Boxen "In Zukunft" / "Rückblickend" */
-  --button-bg: #e6e6e6;     /* Buttons */
-  --button-aktiv: #cfcfcf;  /* Buttons beim Antippen */
+  --bg: rgb(248 221 129 / 0.38);            /* Seitenhintergrund */
+  --text: #000000;          /* Textfarbe */
+  --text-leise: #696969;    /* Hinweise, leere Zustände */
+  --titel-bg: #726011;      /* Titelbalken */
+  --karte-bg: #f8dd81;      /* Karte "Nächster Termin", Fenster */
+  --box-bg: #fff2cf;        /* Boxen "In Zukunft" / "Rückblickend" */
+  --button-bg: #d9be4d;     /* Buttons */
+  --button-aktiv: #ffe26b;  /* Buttons beim Antippen */
   --feld-bg: #ffffff;       /* Eingabefelder */
   --schliessen-bg: #e5452f; /* ✕-Button */
   --gefahr: #c62828;        /* Löschen, Fehler */
@@ -37,7 +37,7 @@ body {
   background-color: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
@@ -82,9 +82,13 @@ svg {
 
 .titel {
   background: var(--titel-bg);
+  border-style: solid;
+  border-color: #917b16;
+  color: white;
+  font-family: Impact;
   padding: 14px 12px;
   text-align: center;
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 800;
   line-height: 1.15;
 }
@@ -108,7 +112,8 @@ svg {
   display: block;
   width: 100%;
   padding: 14px 16px;
-  border: none;
+  border-style: solid;
+  border-color: #a7923b;
   border-radius: 0;
   background: var(--button-bg);
   text-align: center;
@@ -191,6 +196,8 @@ textarea {
 .karte {
   background: var(--karte-bg);
   padding: 14px 16px 16px;
+  border-style: solid;
+  border-color: #dbc372;
 }
 
 .karte-kopf {
