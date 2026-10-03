@@ -7,7 +7,7 @@
    Die Termine selbst speichert Firestore offline (nicht hier).
    ========================================================= */
 
-const CACHE = "mischa-therapie-v1";
+const CACHE = "mischa-therapie-v3";
 
 const FILES = [
   "./",
@@ -73,9 +73,9 @@ self.addEventListener("fetch", (event) => {
   // Alles andere von fremden Servern (z. B. Firestore selbst) nicht anfassen
   if (new URL(request.url).origin !== location.origin) return;
 
-  // Eigene Dateien: Netzwerk zuerst
+  // Eigene Dateien: Netzwerk zuerst – am Browser-Cache vorbei, sonst kommt evtl. eine alte Version
   event.respondWith(
-    fetch(request)
+    fetch(request, { cache: "no-cache" })
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();

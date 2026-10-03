@@ -1,14 +1,16 @@
 rules_version = '2';
 
-// Nur EIN Benutzer (deine UID) darf Termine lesen, anlegen, ändern und löschen.
+// Nur die hier eingetragenen Benutzer (UIDs) dürfen Termine lesen, anlegen, ändern und löschen.
 // Alle anderen – auch wer den Link kennt oder sich selbst ein Konto anlegt – bekommen nichts.
 // Diese Regeln in der Firebase-Konsole unter Firestore → Regeln einfügen und veröffentlichen.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Weitere Konten: UID hier in die Liste eintragen (mit Komma trennen).
     function istBesitzer() {
-      return request.auth != null && request.auth.uid == "HIER_DEINE_UID_EINTRAGEN";
+      return request.auth != null
+        && request.auth.uid in ["HIER_DEINE_UID_EINTRAGEN", "HIER_UID_ZWEITES_KONTO"];
     }
 
     function textFeld(daten, feld, maxLaenge) {
@@ -16,11 +18,19 @@ service cloud.firestore {
     }
 
     function gueltig(daten) {
-      return daten.keys().hasOnly(["name", "zukunft", "rueckblick", "erstelltAm"])
+      return daten.keys().hasOnly(["name", "zukunft", "rueckblick", "erstelltAm", "zukunftVon", "rueckblickVon"])
         && textFeld(daten, "name", 200) && daten.name.size() > 0
         && textFeld(daten, "zukunft", 20000)
         && textFeld(daten, "rueckblick", 20000)
-        && daten.erstelltAm is timestamp;
+        && daten.erstelltAm is timestamp
+        && daten.get("zukunftVon", "") is string
+        && daten.get("rueckblickVon", "") is string;
+    }
+
+    // Wer einen Text neu anlegt oder ändert, wird als Verfasser eingetragen (nicht fälschbar)
+    function verfasserKorrekt(neu, alt) {
+      return (neu.zukunft == alt.get("zukunft", "") || neu.get("zukunftVon", "") == request.auth.uid)
+        && (neu.rueckblick == alt.get("rueckblick", "") || neu.get("rueckblickVon", "") == request.auth.uid);
     }
 
     match /termine/{terminId} {
@@ -28,11 +38,23 @@ service cloud.firestore {
 
       allow create: if istBesitzer()
         && gueltig(request.resource.data)
-        && request.resource.data.erstelltAm == request.time;
+        && request.resource.data.erstelltAm == request.time
+        && request.resource.data.get("zukunftVon", request.auth.uid) == request.auth.uid
+        && request.resource.data.get("rueckblickVon", request.auth.uid) == request.auth.uid;
 
       allow update: if istBesitzer()
         && gueltig(request.resource.data)
-        && request.resource.data.erstelltAm == resource.data.erstelltAm;
+        && request.resource.data.erstelltAm == resource.data.erstelltAm
+        && verfasserKorrekt(request.resource.data, resource.data);
+    }
+
+    // Erinnerung: ein gemeinsamer Text für beide Konten
+    match /erinnerungen/{docId} {
+      allow read: if istBesitzer();
+      allow create, update: if istBesitzer()
+        && request.resource.data.keys().hasOnly(["text"])
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 20000;
     }
 
     // Alles andere ist gesperrt

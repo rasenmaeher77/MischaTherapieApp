@@ -2,7 +2,8 @@
    Mischa Therapie App
    Anmeldung: Firebase Authentication (E-Mail/Passwort)
    Daten:     Firestore, Sammlung "termine"
-              { name, zukunft, rueckblick, erstelltAm }
+              { name, zukunft, rueckblick, erstelltAm, zukunftVon, rueckblickVon }
+              (…Von = UID der Person, die den Text zuletzt geändert hat → Schriftfarbe)
    ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
@@ -13,7 +14,7 @@ import {
   initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager,
   collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig, person1Uid } from "./firebase-config.js";
 
 /* Offline-Funktion (Service Worker) */
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
@@ -33,6 +34,8 @@ let offenerId = null;        // ID des Termins im Terminfenster (null = neu)
 let terminModus = "ansicht"; // "ansicht" | "bearbeiten"
 let formStart = "";          // Formularinhalt beim Öffnen (für "ungespeichert?")
 let listeModus = "ansehen";  // "ansehen" | "loeschen"
+let stopErinnerung = null;   // beendet die Live-Verbindung zur Erinnerung
+let erinnerungText = "";     // zuletzt gespeicherter Text der Erinnerung
 
 /* ===== Firebase starten ===== */
 
@@ -56,6 +59,7 @@ try {
 }
 
 const termineRef = collection(db, "termine");
+const erinnerungRef = doc(db, "erinnerungen", "gemeinsam");
 
 /* ===== Anmeldung ===== */
 
@@ -66,12 +70,18 @@ onAuthStateChanged(auth, (user) => {
 
   if (user) {
     starteTermine();
+    starteErinnerung();
   } else {
     if (stopTermine) stopTermine();
     stopTermine = null;
     termine = [];
+    if (stopErinnerung) stopErinnerung();
+    stopErinnerung = null;
     fensterSchliessen("termin", true);
     fensterSchliessen("liste");
+    fensterSchliessen("erinnerung", true);
+    erinnerungText = "";
+    $("feld-erinnerung").value = "";
   }
 });
 
@@ -127,6 +137,8 @@ function starteTermine() {
         name: data.name || "",
         zukunft: data.zukunft || "",
         rueckblick: data.rueckblick || "",
+        zukunftVon: data.zukunftVon || "",
+        rueckblickVon: data.rueckblickVon || "",
         zeit: data.erstelltAm ? data.erstelltAm.toMillis() : Date.now()
       };
     });
@@ -174,8 +186,15 @@ function naechstenAnzeigen() {
     naechsterId = termin.id;
   }
 
-  $("naechster-zukunft").textContent = termin.zukunft || "–";
-  $("naechster-rueckblick").textContent = termin.rueckblick || "–";
+  textAnzeigen($("naechster-zukunft"), termin.zukunft, termin.zukunftVon);
+  textAnzeigen($("naechster-rueckblick"), termin.rueckblick, termin.rueckblickVon);
+}
+
+// Text einsetzen und je nach Verfasser einfärben (Person 1 grün, Person 2 rot)
+function textAnzeigen(element, text, uid) {
+  element.textContent = text || "–";
+  element.classList.toggle("person-1", !!text && !!uid && uid === person1Uid);
+  element.classList.toggle("person-2", !!text && !!uid && uid !== person1Uid);
 }
 
 function aufklappen(button, offen) {
@@ -203,6 +222,11 @@ function fensterOeffnen(name) {
 
 // ohneNachfrage: ungespeicherte Änderungen ohne Rückfrage verwerfen
 function fensterSchliessen(name, ohneNachfrage) {
+  if (name === "erinnerung" && !ohneNachfrage && !$("erinnerung-fenster").hidden &&
+      $("feld-erinnerung").value !== erinnerungText &&
+      !confirm("Ungespeicherte Änderungen verwerfen?")) {
+    return;
+  }
   if (name === "termin" && !ohneNachfrage && terminModus === "bearbeiten" &&
       !$("termin-fenster").hidden && formularInhalt() !== formStart &&
       !confirm("Ungespeicherte Änderungen verwerfen?")) {
@@ -252,8 +276,8 @@ function ansichtAnzeigen() {
   const termin = findeTermin(offenerId);
   if (!termin) return;
   $("termin-titel").textContent = "Termin: " + termin.name;
-  $("ansicht-zukunft").textContent = termin.zukunft || "–";
-  $("ansicht-rueckblick").textContent = termin.rueckblick || "–";
+  textAnzeigen($("ansicht-zukunft"), termin.zukunft, termin.zukunftVon);
+  textAnzeigen($("ansicht-rueckblick"), termin.rueckblick, termin.rueckblickVon);
 }
 
 function formularInhalt() {
@@ -276,6 +300,12 @@ $("termin-form").addEventListener("submit", (event) => {
     $("feld-name").focus();
     return;
   }
+
+  // Verfasser merken: nur bei Texten, die neu oder geändert sind
+  const uid = auth.currentUser.uid;
+  const alt = offenerId ? findeTermin(offenerId) : null;
+  if (!alt || daten.zukunft !== alt.zukunft) daten.zukunftVon = uid;
+  if (!alt || daten.rueckblick !== alt.rueckblick) daten.rueckblickVon = uid;
 
   // Nicht auf den Server warten: offline landet die Änderung im lokalen Speicher
   // und wird automatisch hochgeladen, sobald wieder Internet da ist.
@@ -348,6 +378,36 @@ function terminLoeschen(termin) {
   if (!confirm("Termin „" + termin.name + "“ wirklich löschen?")) return;
   deleteDoc(doc(termineRef, termin.id)).catch(schreibFehler);
 }
+
+/* ===== Erinnerung (ein gemeinsamer Text) ===== */
+
+function starteErinnerung() {
+  if (stopErinnerung) return;
+
+  stopErinnerung = onSnapshot(erinnerungRef, (snapshot) => {
+    const neu = (snapshot.data() || {}).text || "";
+    const feld = $("feld-erinnerung");
+    // Ungespeicherte eigene Eingaben nicht überschreiben
+    if (feld.value === erinnerungText) feld.value = neu;
+    erinnerungText = neu;
+  }, (err) => {
+    console.error(err);
+  });
+}
+
+$("btn-erinnerung").addEventListener("click", () => {
+  fensterOeffnen("erinnerung");
+  $("feld-erinnerung").focus();
+});
+
+$("erinnerung-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = $("feld-erinnerung").value.trim();
+  $("feld-erinnerung").value = text;
+  erinnerungText = text;
+  setDoc(erinnerungRef, { text }).catch(schreibFehler);
+  fensterSchliessen("erinnerung", true);
+});
 
 /* ===== Offline-Hinweis ===== */
 

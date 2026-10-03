@@ -92,6 +92,7 @@
         <button id="btn-loeschen" class="button" type="button">Termin löschen</button>
         <button id="btn-hinzufuegen" class="button" type="button">Termin hinzufügen</button>
         <button id="btn-liste" class="button" type="button">Vergangene Termine</button>
+        <button id="btn-erinnerung" class="button" type="button">Erinnerung</button>
       </div>
 
       <button id="btn-abmelden" class="link-button" type="button">Abmelden</button>
@@ -145,6 +146,22 @@
           <textarea id="feld-rueckblick" rows="6" maxlength="20000"></textarea>
         </div>
 
+        <button type="submit" class="button">Speichern</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Fenster: Erinnerung ===== -->
+  <div id="erinnerung-fenster" class="overlay" hidden>
+    <div class="fenster" role="dialog" aria-modal="true" aria-labelledby="erinnerung-titel">
+      <button class="schliessen" type="button" aria-label="Schließen" data-schliessen="erinnerung">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h2 id="erinnerung-titel">Erinnerung</h2>
+
+      <form id="erinnerung-form">
+        <textarea id="feld-erinnerung" rows="12" maxlength="20000" aria-label="Erinnerungen"
+                  placeholder="Erinnerungen hier eintragen …"></textarea>
         <button type="submit" class="button">Speichern</button>
       </form>
     </div>

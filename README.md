@@ -49,6 +49,19 @@ Seite in **Safari** öffnen → Teilen-Symbol → **Zum Home-Bildschirm**.
 Die App auf dem Home-Bildschirm hat einen eigenen Speicher, du musst dich dort also einmal
 separat anmelden. Danach bleibst du angemeldet.
 
+## Zweites Konto hinzufügen
+
+Beide Konten sehen und bearbeiten dieselben Termine.
+
+1. Firebase-Konsole → **Authentication → Nutzer → Nutzer hinzufügen** → E-Mail und Passwort der zweiten Person.
+2. Die **Nutzer-UID** der neuen Zeile kopieren.
+3. **Firestore Database → Regeln**: In `istBesitzer()` die UID in die Liste eintragen
+   (`HIER_UID_ZWEITES_KONTO` ersetzen) → **Veröffentlichen**.
+4. In `js/firebase-config.js` bei `person1Uid` die UID von **Person 1** eintragen.
+   Texte von Person 1 erscheinen grün, Texte jedes anderen Kontos rot.
+5. Die zweite Person meldet sich in der App mit E-Mail und Passwort an
+   (auf dem iPhone einmal pro Gerät/Home-Bildschirm-App).
+
 ## Sicherheit – warum ist das geschützt?
 
 - Die Werte in `firebase-config.js` sind **kein Passwort**; sie sagen nur, welches Projekt gemeint ist.

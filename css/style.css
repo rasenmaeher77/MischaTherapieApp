@@ -13,6 +13,8 @@
   --feld-bg: #ffffff;       /* Eingabefelder */
   --schliessen-bg: #e5452f; /* ✕-Button */
   --gefahr: #c62828;        /* Löschen, Fehler */
+  --person-1: #1b7f1b;      /* Schrift von Person 1 */
+  --person-2: #d01212;      /* Schrift von Person 2 */
 
   /* Abstände für Notch, Dynamic Island und Home-Indikator */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -365,3 +367,7 @@ textarea {
 .liste .icon-button { height: auto; min-height: 44px; }
 
 .liste .loeschen { color: var(--gefahr); }
+
+/* Schriftfarbe nach Verfasser */
+.person-1 { color: var(--person-1); }
+.person-2 { color: var(--person-2); }
